@@ -1,0 +1,72 @@
+#!/usr/bin/python3
+#coding=utf-8
+
+import serial
+import re
+import time
+
+class UPS2:
+    def __init__(self,port):
+        self.ser  = serial.Serial(port,9600)
+        if self.ser.isOpen():
+            print("open success")
+        else:
+            print("open failed")
+        #self.ser.read(1)        
+    
+    def get_data(self,nums):
+        try:
+            while True:
+                self.count = self.ser.inWaiting()
+                #print(self.count)
+                if self.count >0:
+                    self.recv = self.ser.read(nums)
+                    return self.recv
+                else:
+                    print("error")
+                    self.ser.flushOutput()
+                    self.ser.close()
+                    time.sleep(1)
+                    self.ser.open()
+
+                    #先读取一下，保证下次可以读取数据
+                    #self.ser.read(nums)
+                    print(self.ser.read(nums))
+                    print("---------------")
+                    time.sleep(1)
+
+                #time.sleep(0.1)
+        # 消除因 ctrl+c 程序中断后，下次无法读取的错误
+        except KeyboardInterrupt:
+            if serial != None:
+                self.ser.close()
+
+
+
+
+    def decode_uart(self,nums):
+        self.uart_string = self.get_data(nums)
+        self.data = self.uart_string.decode('ascii','ignore')
+        print(self.data)
+        self.pattern = r'BATCAP (.*?),' #以，结尾
+        self.batcap = re.findall(self.pattern,self.data)
+        self.pattern = r'Vout (.*?) '   #以空格结尾
+        self.vout = re.findall(self.pattern,self.data)
+        print(self.batcap,self.vout)
+        return self.batcap[0],self.vout[0]
+    
+
+if __name__ == "__main__":
+    print("This is UPS v2 class file")
+    test = UPS2("/dev/ttyAMA0")
+    # 每字段为47
+    nums = 100
+    #test.get_data(nums+1)
+    i = 0
+    while True:
+        batcap,vout = test.decode_uart(nums)
+        if i%30==0:
+            print("Battery Capacity: "+batcap+"%, "+"out voltage: "+vout+"mV")
+            print("-----------")
+        i+=1
+        time.sleep(10)

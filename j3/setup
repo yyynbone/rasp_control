@@ -1,0 +1,19 @@
+#!/bin/bash
+# edit by hzh 2020/7/30
+# in order to add it to /etc/rc.local
+# start level 80 , stop level 10
+# auto start when machine started
+pathpy=/home/pi/j3/control_pigpio.py
+if [ -e $pathpy ];then
+	pid=`ps -aux | grep control_pigpio.py`
+	if [ $pid ];then
+		exit 0
+	else
+		sleep 5s
+		nohup python $pathpy >/dev/null 2>&1 &
+	fi
+	sleep 50s
+	nohup python $pathpy >/dev/null 2>&1 &
+fi
+
+

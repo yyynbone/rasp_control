@@ -1,0 +1,23 @@
+#!/bin/bash
+# edit by hzh 2020/7/30
+# in order to add it to /etc/rc.local
+# start level 80 , stop level 10
+# auto start when machine started
+pathpy=/home/pi/xiajing/control_pigpio.py
+if [ -e $pathpy ];then
+	pid=`ps -aux | grep control_pigpio.py|awk '{print $2}'|awk '{print $2}'|xargs echo`
+	# printf $pid
+	if [ $pid ];then
+		echo "exist"
+		exit 0
+	else
+		sleep 50s
+		nohup python $pathpy >/dev/null 2>&1 &
+		echo "started"	
+	fi
+	#nohup python $pathpy >/dev/null 2>&1 &
+fi
+
+
+# /etc/init.d
+# sudo update-rc.d setup 80
